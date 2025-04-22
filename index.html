@@ -1,0 +1,2137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nabla&family=Nova+Square&family=Tilt+Neon&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Pi</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+            background-color: #1a0f2e;
+            color: #fff;
+        }
+	h1 {
+	    color: #e0c3ff;
+	    margin-bottom: 30px;
+	    margin-top: 0px;
+	    font-size: 4.5rem;
+	    text-shadow: 0px 0px 10px rgba(156, 39, 176, 0.7);
+	    font-family: "Nabla", system-ui;
+	    font-optical-sizing: auto;
+	    font-weight: 400;
+	    font-style: normal;
+	    font-variation-settings:
+	      "EDPT" 100,
+	      "EHLT" 12;
+	}
+        .modes {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+	button {
+	    padding: 12px 18px;
+	    border: none;
+	    border-radius: 8px;
+	    cursor: pointer;
+	    background-color: #3a2a5a;
+	    color: #fadd05;
+	    font-family: "Nova Square", sans-serif;
+	    font-weight: 400;
+	    font-style: normal;
+	    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+	    transition: all 0.3s ease;
+	}
+        button.active {
+            background-color: #9c27b0;
+            color: white;
+            box-shadow: 0 0 15px rgba(156, 39, 176, 0.6);
+        }
+        button:hover {
+            background-color: #4a3a6a;
+            transform: translateY(-2px);
+        }
+        button.active:hover {
+            background-color: #8e24aa;
+        }
+        .pi-display {
+            font-size: 54px;
+            min-height: 60px;
+            margin: 25px 0;
+            padding: 15px;
+            background-color: #2a1b3d;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 0 8px rgba(156, 39, 176, 0.3);
+            text-align: right;
+            position: relative;
+	    font-family: "Tilt Neon", sans-serif;
+	    font-optical-sizing: auto;
+	    font-weight: 400;
+	    font-style: normal;
+	    font-variation-settings:
+	      "XROT" 0,
+	      "YROT" 0;
+            color: #e0c3ff;
+	    letter-spacing: 10px;
+	    overflow: hidden;
+        }
+	@media (max-width: 768px) {
+	    .pi-display {
+	        font-size: 48px;
+	        letter-spacing: 10px;
+	        padding: 10px;
+	    }
+	}
+	@media (max-width: 480px) {
+	    .pi-display {
+	        font-size: 42px;
+	        letter-spacing: 8px;
+	    }
+	}
+        .current-digits {
+            display: inline-block;
+        }
+        .hint {
+            color: rgba(224, 195, 255, 0.4);
+            display: inline-block;
+        }
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-gap: 12px;
+            margin-top: 0px;
+        }
+	.key {
+	    padding: 10px;
+	    font-size: 36px;
+	    background-color: #3a2a5a;
+	    border-radius: 12px;
+	    width: 50px;
+	    height: 50px;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    cursor: pointer;
+	    margin: 0 auto;
+	    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+	    transition: all 0.2s ease;
+	    color: #fadd05;
+	    font-family: "Tilt Neon", sans-serif;
+	    font-optical-sizing: auto;
+	    font-weight: 400;
+	    font-style: normal;
+	    font-variation-settings:
+	      "XROT" 0,
+	      "YROT" 0;
+	    text-shadow: 0 0 8px rgba(255, 243, 8, 0.6); /*glow */
+	}
+        .key:hover {
+            background-color: #4a3a6a;
+            transform: translateY(-2px);
+	    text-shadow: 0 0 12px rgba(255, 243, 8, 0.8);
+        }
+        .key:active, .key.active {
+            background-color: #9c27b0;
+            color: white;
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(156, 39, 176, 0.5);
+	    text-shadow: 0 0 15px rgba(255, 243, 8, 1);
+        }
+        .message {
+            margin-top: 25px;
+            font-size: 18px;
+            color: #e0c3ff;
+            height: 24px;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: white;
+            z-index: 1000;
+            display: none;
+            backdrop-filter: blur(5px);
+        }
+        .overlay-content {
+            background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+            padding: 30px 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .overlay-content h2 {
+            margin-top:0;
+	    font-family: "Nova Square", sans-serif;
+	    font-weight: 400;
+	    font-style: normal;
+            font-size: 2rem;
+        }
+        .overlay-button {
+            background-color: white;
+            color: #9c27b0;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .overlay-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        .empty-cell {
+            visibility: hidden;
+        }
+	@keyframes glowDigit {
+	    0% { text-shadow: 0 0 0px rgba(255, 243, 8, 0); }
+	    50% { text-shadow: 0 0 15px rgba(255, 243, 8, 1); color: #fff308; }
+	    100% { text-shadow: 0 0 0px rgba(255, 243, 8, 0); }
+	}
+
+	@keyframes rollUp {
+	    from { transform: translateY(0); opacity: 1; }
+	    to { transform: translateY(-100px); opacity: 0; }
+	}
+
+	.digit {
+	    display: inline-block;
+	}
+
+
+	.glow-digit {
+	    animation: glowDigit 0.8s ease-in-out;
+	}
+	
+	.roll-up {
+	    animation: rollUp 1s ease-in-out forwards;
+	}
+	.key-glow {
+	    background-color: #4a3a6a !important;
+	    transform: translateY(-2px);
+	    text-shadow: 0 0 12px rgba(255, 243, 8, 0.8);
+	}
+    </style>
+</head>
+<body>
+    <h1>100 Pi</h1>
+    
+    <div class="modes">
+        <button id="study-mode" class="active">Study Mode</button>
+        <button id="recall-mode">Recall Mode</button>
+    </div>
+    
+    <div class="pi-display">
+        <span id="entered-digits" class="current-digits"></span><span class="hint" id="hint"></span>
+    </div>
+    
+    <div class="message" id="message"></div>
+    
+    <div class="keypad">
+        <div class="key" data-value="1">1</div>
+        <div class="key" data-value="2">2</div>
+        <div class="key" data-value="3">3</div>
+        <div class="key" data-value="4">4</div>
+        <div class="key" data-value="5">5</div>
+        <div class="key" data-value="6">6</div>
+        <div class="key" data-value="7">7</div>
+        <div class="key" data-value="8">8</div>
+        <div class="key" data-value="9">9</div>
+	<div class="key" id="redo-button">↺</div>
+	<div class="key" data-value="0">0</div>
+	<div class="key" id="skip-button">↪</div>
+    </div>
+    
+    <div class="overlay" id="result-overlay">
+        <div class="overlay-content">
+            <h2 id="result-title">Well Done!</h2>
+            <p id="result-message">You've baked 0 pies!</p>
+            <button class="overlay-button" id="restart-button">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const PI_DIGITS = "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
+	const PI_DIGITS_CLEAN = PI_DIGITS.replace(".", "");
+        const MAX_DIGITS = 101; // Including the decimal point
+        
+        // Variables
+        let currentMode = "study";
+        let enteredDigits = "";
+        let currentDigitIndex = 0;
+	let isAnimating = false;
+	let animationSafetyTimeout = null;
+	let isFirstGroup = true;
+	let earnedPies = [];
+	let canSkip = false;
+	let currentLineStartIndex = 0;
+	let currentLine = 0; // Track which line we're on (0-based)
+
+	// Audio context for generating sounds
+	let audioContext;
+
+	// Initialize audio when user interacts with the page (browser requirement)
+	function initAudio() {
+	    if (!audioContext) {
+	        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+	    }
+	}
+
+	// Create a harp-like sound using a combination of sine waves
+	function playHarpNote(frequency, duration = 0.8) {
+	    if (!audioContext) return;
+    
+	    // Create multiple oscillators for richer sound
+	    const oscillator1 = audioContext.createOscillator();
+	    const oscillator2 = audioContext.createOscillator();
+	    const oscillator3 = audioContext.createOscillator();
+    
+	    // Create a gain node for volume control and fading out
+	    const gainNode = audioContext.createGain();
+    
+	    // Connect the oscillators to the gain node
+	    oscillator1.connect(gainNode);
+	    oscillator2.connect(gainNode);
+	    oscillator3.connect(gainNode);
+    
+	    // Connect the gain node to the audio output
+	    gainNode.connect(audioContext.destination);
+    
+	    // Set the oscillator types and frequencies
+	    oscillator1.type = 'sine'; // Pure sine for the fundamental frequency
+	    oscillator2.type = 'triangle'; // Triangle for some harmonic content
+	    oscillator3.type = 'sine'; // Second harmonic
+    
+	    oscillator1.frequency.value = frequency;
+	    oscillator2.frequency.value = frequency * 1.002; // Slight detuning for 			richness
+	    oscillator3.frequency.value = frequency * 2; // Second harmonic
+	    
+	    // Set the initial gain
+	    gainNode.gain.value = 0.2;
+	    
+	    // Create a gentle attack
+	    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+	    gainNode.gain.linearRampToValueAtTime(0.2, audioContext.currentTime + 0.05);
+	    
+	    // Create a gradual release
+	    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime + 0.1);
+	    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 		duration);
+    
+	    // Start and stop the oscillators
+	    oscillator1.start();
+	    oscillator2.start();
+	    oscillator3.start();
+    
+	    oscillator1.stop(audioContext.currentTime + duration);
+	    oscillator2.stop(audioContext.currentTime + duration);
+	    oscillator3.stop(audioContext.currentTime + duration);
+	}
+	
+	// Define note frequencies for each digit (using a pentatonic scale for pleasant 	combinations)
+	const noteFrequencies = {
+	    '0': 523.25,  // C5
+	    '1': 587.33,  // D5
+	    '2': 659.25,  // E5
+	    '3': 783.99,  // G5
+	    '4': 880.00,  // A5
+	    '5': 1046.50, // C6
+	    '6': 1174.66, // D6
+	    '7': 1318.51, // E6
+	    '8': 1567.98, // G6
+	    '9': 1760.00  // A6
+	};
+
+	// Play the note corresponding to a digit
+	function playDigitSound(digit) {
+	    if (noteFrequencies[digit]) {
+	        playHarpNote(noteFrequencies[digit]);
+	    }
+	}
+        
+        // DOM Elements
+        const studyModeButton = document.getElementById("study-mode");
+        const recallModeButton = document.getElementById("recall-mode");
+        const enteredDigitsElement = document.getElementById("entered-digits");
+        const hintElement = document.getElementById("hint");
+        const messageElement = document.getElementById("message");
+        const keys = document.querySelectorAll(".key[data-value]");
+        const overlay = document.getElementById("result-overlay");
+        const resultTitle = document.getElementById("result-title");
+        const resultMessage = document.getElementById("result-message");
+        const restartButton = document.getElementById("restart-button");
+	// Pie data structure (initially with just the first 10 pies)
+	const PIE_DATA = [
+    {
+        id: 1,
+        digit: 3,
+        name: "Apple Pie",
+        romanNumeral: "I",
+        fact: "Pi can be used to calculate the circumference of any pie! Unless it was a square pie… What a horrifying concept.",
+        caption: "An all-American classic!"
+    },
+    {
+        id: 2,
+        digit: 1,
+        name: "Blueberry Pie",
+        romanNumeral: "II",
+        fact: "Pi is an irrational number, which means it cannot be expressed as a simple fraction—it goes on forever!",
+        caption: "Bubbly, blue, and just a little too sweet."
+    },
+    {
+        id: 3,
+        digit: 4,
+        name: "Cherry Pie",
+        romanNumeral: "III",
+        fact: "Pi Day falls on the 14th of March each year. Because it's 3.14… Get it?",
+        caption: "This must be where pies go when they die."
+    },
+    {
+        id: 4,
+        digit: 1,
+        name: "Pecan Pie",
+        romanNumeral: "IV",
+        fact: "We've been using pi in geometry for almost 4000 years!",
+        caption: "The State Pie of Texas!"
+    },
+    {
+        id: 5,
+        digit: 5,
+        name: "Lemon Meringue Pie",
+        romanNumeral: "V",
+        fact: "The World Record for most digits of pi memorised belongs to Rajveer Meena, who recalled 70,000 digits. For fun. We think.",
+        caption: "Tangy enough to make your lips do a little dance."
+    },
+    {
+        id: 6,
+        digit: 9,
+        name: "Chocolate Cream Pie",
+        romanNumeral: "VI",
+        fact: "Pi Day was first celebrated in the San Francisco Exploratorium at 1:59pm. Because it's 3.14159… Nerds.",
+        caption: "The dessert no one asked for, but everyone eats anyway."
+    },
+    {
+        id: 7,
+        digit: 2,
+        name: "Peach Pie",
+        romanNumeral: "VII",
+        fact: "Mathematician William Jones chose the symbol π because it was shorthand for the word περιϕέρεια (meaning \"periphery\"). Also because it looked cool.",
+        caption: "Juicy, golden, and just a bit too warm."
+    },
+    {
+        id: 8,
+        digit: 6,
+        name: "Banana Cream Pie",
+        romanNumeral: "VIII",
+        fact: "The first person to calculate an accurate estimate for pi was Archimedes of Syracuse (c.250 BC).",
+        caption: "A sadder version of a banoffee pie."
+    },
+    {
+        id: 9,
+        digit: 5,
+        name: "Pumpkin Pie",
+        romanNumeral: "IX",
+        fact: "The Ancient Babylonians (c.2000 BC) approximated pi as equal to just 3. Adorable. And wrong. You know 8 more digits of pi than those fools!",
+        caption: "What calls back the past, like the rich Pumpkin pie?"
+    },
+    {
+        id: 10,
+        digit: 3,
+        name: "Key Lime Pie",
+        romanNumeral: "X",
+        fact: "Pi Day is also Albert Einstein's birthday!",
+        caption: "Not to be confused with Kiwi Lime Pie."
+    },
+    {
+        id: 11,
+        digit: 5,
+        name: "Shepherd's Pie",
+        romanNumeral: "XI",
+        fact: "Pi shows up in physics, engineering, and even probability. A true multitasker, like your nan.",
+        caption: "Technically not dessert. Emotionally? Still pie."
+    },
+    {
+        id: 12,
+        digit: 8,
+        name: "Banoffee Pie",
+        romanNumeral: "XII",
+        fact: "Pi, A Haiku:<br>Three point one four one<br>Five nine two six five three five<br>Eight nine seven nine",
+        caption: "Bananas, toffee, and chaos in a crust."
+    },
+    {
+        id: 13,
+        digit: 9,
+        name: "Humble Pie",
+        romanNumeral: "XIII",
+        fact: "Pi has been computed to over 62 trillion digits. Please don't try to memorise them all. We worry.",
+        caption: "It tastes like regret, seasoned with reflection."
+    },
+    {
+        id: 14,
+        digit: 7,
+        name: "Mississippi Mud Pie",
+        romanNumeral: "XIV",
+        fact: "For those who hate Americanised date notation, you can celebrate Pie Approximation Day on the 22nd of July. 22/7. Cheeky.",
+        caption: "A swamp of sugar with a chocolate undercurrent."
+    },
+    {
+        id: 15,
+        digit: 9,
+        name: "70s Dinner Party Pie",
+        romanNumeral: "XV",
+        fact: "Computers now calculate pi to trillions of digits. Back in the 70s, we just guessed and moved on.",
+        caption: "A garish collection of retro food horrors."
+    },
+    {
+        id: 16,
+        digit: 3,
+        name: "Coconut Cream Pie",
+        romanNumeral: "XVI",
+        fact: "In 1706, pi was first calculated to 100 decimal places. Because someone had a lot of free time.",
+        caption: "Soft, sweet, and slightly suspicious."
+    },
+    {
+        id: 17,
+        digit: 2,
+        name: "Pizza Pie",
+        romanNumeral: "XVII",
+        fact: "Archimedes used the \"method of exhaustion\" to estimate pi. Basically, he got real tired of circles.",
+        caption: "Deep dish, deeper mysteries."
+    },
+    {
+        id: 18,
+        digit: 3,
+        name: "Cursed Coin Pie",
+        romanNumeral: "XVIII",
+        fact: "Pi is a transcendental number. That means it's above algebra. And probably cursed.",
+        caption: "Every slice comes with bad luck and a mysterious clang."
+    },
+    {
+        id: 19,
+        digit: 8,
+        name: "Boston Cream Pie",
+        romanNumeral: "XIX",
+        fact: "Pi appears in the equations that describe waves, circles, and the universe. It's everywhere. Watching.",
+        caption: "Not actually a pie, but don't tell it that."
+    },
+    {
+        id: 20,
+        digit: 4,
+        name: "Shaving Cream Pie",
+        romanNumeral: "XX",
+        fact: "The speed of light divided by the weight of regret equals... Wait. What were we talking about again?",
+        caption: "Favoured by clowns and tricksters. Not recommended for consumption."
+    },
+    {
+        id: 21,
+        digit: 6,
+        name: "Cookies and Cream Pie",
+        romanNumeral: "XXI",
+        fact: "Pi backwards is \"ip,\" which is what you say when you drop your pie on the floor.",
+        caption: "Like an Oreo had a fever dream."
+    },
+    {
+        id: 22,
+        digit: 2,
+        name: "Burnt Pie",
+        romanNumeral: "XXII",
+        fact: "If you set your oven to pi degrees, nothing happens. Because ovens don't work in radians.",
+        caption: "Did I leave the oven on?"
+    },
+    {
+        id: 23,
+        digit: 6,
+        name: "Rhubarb Pie",
+        romanNumeral: "XXIII",
+        fact: "There once was a number called pi,<br>Who was quite the irrational guy.<br>He went on forever,<br>Which was really quite clever,<br>But made my brain curl up and die.",
+        caption: "Scrumptiously tart. Deliciously pink."
+    },
+    {
+        id: 24,
+        digit: 4,
+        name: "Fish Pie",
+        romanNumeral: "XXIV",
+        fact: "Somewhere in pi is the perfect shape of a haddock. Scientists stopped looking after the mackerel incident. Don't ask.",
+        caption: "Ew."
+    },
+    {
+        id: 25,
+        digit: 3,
+        name: "Ghost Pie",
+        romanNumeral: "XXV",
+        fact: "Some say if you chant the digits of pi in a mirror at midnight, a spectral baker appears. He's very disappointed in your crust technique.",
+        caption: "Just a regular pie, but it's a ghost."
+    },
+    {
+        id: 26,
+        digit: 3,
+        name: "Cheese and Leek Pie",
+        romanNumeral: "XXVI",
+        fact: "The Gauss-Legendre algorithm provides rapid convergence for π, but only if your soul is calibrated to base-10 transcendental frequencies.",
+        caption: "It smells mathematical."
+    },
+    {
+        id: 27,
+        digit: 8,
+        name: "Peanut Butter Chocolate Pie",
+        romanNumeral: "XXVII",
+        fact: "Pi cannot be contained. Like peanut butter on a hot day, it spreads... and spreads... and spreads...",
+        caption: "It sticks to the roof of your brain."
+    },
+    {
+        id: 28,
+        digit: 3,
+        name: "Mystery Meat Pie",
+        romanNumeral: "XXVIII",
+        fact: "Pi is found everywhere: in geometry, physics, and occasionally, the leftovers drawer. Don't ask what's in the drawer.",
+        caption: "The less you know, the tastier it is."
+    },
+    {
+        id: 29,
+        digit: 2,
+        name: "Kiwi Lime Pie",
+        romanNumeral: "XXIX",
+        fact: "Some believe kiwi limes are fictional. Like pi's final digit. (There isn't one. That's the twist.)",
+        caption: "Not to be confused with Key Lime Pie."
+    },
+    {
+        id: 30,
+        digit: 7,
+        name: "Deja Vu Pie",
+        romanNumeral: "XXX",
+        fact: "Déjà vu is caused by neurons misfiring. So is the desire to memorise 100 digits of pi. Coincidence?",
+        caption: "Haven't I tasted this somewhere before?"
+    },
+    {
+        id: 31,
+        digit: 9,
+        name: "Blackberry Pie",
+        romanNumeral: "XXXI",
+        fact: "Pi shows up in signal processing and time loops. Or maybe it just feels that way. Again.",
+        caption: "Sweet juice drips down your chin like a memory, a memory of picking through brambles, basket in hand, as the autumn chill creeps in..."
+    },
+    {
+        id: 32,
+        digit: 5,
+        name: "Rotten Pie",
+        romanNumeral: "XXXII",
+        fact: "Somewhere, someone is calculating pi right now. And somewhere inside this pie, something is growing...",
+        caption: "I think I saw it moving"
+    },
+    {
+        id: 33,
+        digit: 0,
+        name: "Cookie Pie",
+        romanNumeral: "XXXIII",
+        fact: "If pi were a cookie, it'd be infinite. Unfortunately, your insulin isn't.",
+        caption: "Sweet, sweet diabetes on a plate."
+    },
+    {
+        id: 34,
+        digit: 2,
+        name: "Toothpaste Pie",
+        romanNumeral: "XXXIV",
+        fact: "Pi has nothing to do with dentistry. But this pie might clean your teeth and your soul.",
+        caption: "Minty fresh!"
+    },
+    {
+        id: 35,
+        digit: 8,
+        name: "Steak and Kidney Pie",
+        romanNumeral: "XXXV",
+        fact: "In the early 1900s, one mathematician tried to cook pi into a steak pie. He failed. His notes ended in screaming.",
+        caption: "A hearty meal for the brave. Or the hungry. Or the British."
+    },
+    {
+        id: 36,
+        digit: 8,
+        name: "Ice Pie",
+        romanNumeral: "XXXVI",
+        fact: "The cold, hard digits of pi have no warmth. Unlike this pie, which will crack your molars like brittle truths.",
+        caption: "It's got a crunch to it. Served cold."
+    },
+    {
+        id: 37,
+        digit: 4,
+        name: "Custard Pie",
+        romanNumeral: "XXXVII",
+        fact: "Pi appears in the Gaussian integral, a concept best understood by custard flingers and quantum physicists.",
+        caption: "Gooey, yellow, and destined for someone's face."
+    },
+    {
+        id: 38,
+        digit: 1,
+        name: "Aspic Pie",
+        romanNumeral: "XXXVIII",
+        fact: "Aspic was once fashionable. Like memorising pi, it's only for those with too much time and no fear of gelatin.",
+        caption: "A healthy, plain-looking food."
+    },
+    {
+        id: 39,
+        digit: 9,
+        name: "Butter Pie",
+        romanNumeral: "XXXIX",
+        fact: "There is no mathematical use for butter. But the laws of pi demand sacrifice, and this was the dairy offering.",
+        caption: "The butter wouldn't melt so I put it in the pie, all right?"
+    },
+    {
+        id: 40,
+        digit: 7,
+        name: "Wallpaper Paste Pie",
+        romanNumeral: "XL",
+        fact: "Pi is everywhere. Even in the paste. Especially in the paste. It sees you.",
+        caption: "Gooey, tasteless, and vaguely glue-scented."
+    },
+    {
+        id: 41,
+        digit: 1,
+        name: "Sweet Potato Pie",
+        romanNumeral: "XLI",
+        fact: "Some cultures believe the number pi can be used to predict the future. Others just eat pie and hope for the best.",
+        caption: "Comforting. Familiar. Until it whispers."
+    },
+    {
+        id: 42,
+        digit: 6,
+        name: "Mushroom Pie",
+        romanNumeral: "XLII",
+        fact: "In certain forests, pi grows wild and capless. It hums when you're alone. Listen. No, really. Listen.",
+        caption: "An umami flavour sensation."
+    },
+    {
+        id: 43,
+        digit: 9,
+        name: "TV Static Pie",
+        romanNumeral: "XLIII",
+        fact: "Pi appears in Fourier transforms, which convert signals into frequencies. Or was it dreams into whispers?",
+        caption: "All noise, no flavor, but kind of addictive."
+    },
+    {
+        id: 44,
+        digit: 3,
+        name: "Hangover Anxiety Pie",
+        romanNumeral: "XLIV",
+        fact: "You can't remember what pi is. You know it's important. You're pretty sure it hurt someone.",
+        caption: "Comes with a side of regret and seven unread messages."
+    },
+    {
+        id: 45,
+        digit: 9,
+        name: "Millionaire Pie",
+        romanNumeral: "XLV",
+        fact: "If you had a pound for every digit of pi, you'd be infinitely wealthy. And still feel empty inside.",
+        caption: "Rich, ostentatious, and absolutely full of itself."
+    },
+    {
+        id: 46,
+        digit: 9,
+        name: "Picasso Pie",
+        romanNumeral: "XLVI",
+        fact: "Pi was cubist before it was cool. It bends dimensions and slices minds.",
+        caption: "All the slices are in the wrong place."
+    },
+    {
+        id: 47,
+        digit: 3,
+        name: "Grasshopper Pie",
+        romanNumeral: "XLVII",
+        fact: "They say if you calculate enough digits of pi, you'll find your birthdate. And your deathdate. And something else.",
+        caption: "Minty, crunchy, and filled with existential dread."
+    },
+    {
+        id: 48,
+        digit: 7,
+        name: "Black Hole Pie",
+        romanNumeral: "XLVIII",
+        fact: "Pi is in the equations that govern black holes. When you fall in, you spiral around pi forever. And ever. And ever. And ever.",
+        caption: "Very dense. Slices light."
+    },
+    {
+        id: 49,
+        digit: 5,
+        name: "Lint Pie",
+        romanNumeral: "XLIX",
+        fact: "Lint accumulates in empty spaces. I hear Elon Musk's skull is full of it.",
+        caption: "Found it in your pocket next to a receipt from 2012."
+    },
+    {
+        id: 50,
+        digit: 0,
+        name: "Whoopie Pie",
+        romanNumeral: "L",
+        fact: "The difference between cake and pie is not mathematical. It's personal.",
+        caption: "A cake that wants to be a pie. A lie with frosting."
+    },
+    {
+        id: 51,
+        digit: 2,
+        name: "Nothing Pie",
+        romanNumeral: "LI",
+        fact: "Pi is eternal, never lacking. But you? You opened the fridge and found this.",
+        caption: "Sometimes life is disappointing."
+    },
+    {
+        id: 52,
+        digit: 8,
+        name: "Toenail Clippings Pie",
+        romanNumeral: "LII",
+        fact: "Somewhere in the digits of pi lies the exact pattern of your DNA. Including this moment. Including this pie.",
+        caption: "Mmm, crunchy."
+    },
+    {
+        id: 53,
+        digit: 8,
+        name: "Mayonnaise Pie",
+        romanNumeral: "LIII",
+        fact: "The viscosity of mayonnaise can be approximated using pi. But no one should. Ever.",
+        caption: "Viscous. Unholy. American."
+    },
+    {
+        id: 54,
+        digit: 4,
+        name: "Cherry Bakewell Pie",
+        romanNumeral: "LIV",
+        fact: "Pi shows up in Fourier analysis, signal compression, and pastry symmetry. Also in nightmares.",
+        caption: "A quaint, almond delight with a cherry jewel."
+    },
+    {
+        id: 55,
+        digit: 1,
+        name: "Broken Glass Pie",
+        romanNumeral: "LV",
+        fact: "Pi cannot be broken. But you can. This pie will show you how.",
+        caption: "As painful on the way in as it is on the way out—if you survive."
+    },
+    {
+        id: 56,
+        digit: 9,
+        name: "Deja Vu Pie",
+        romanNumeral: "LVI",
+        fact: "Yes. And no. Pi is a loop that never loops. Welcome back.",
+        caption: "Haven't I tasted this somewhere before?"
+    },
+    {
+        id: 57,
+        digit: 7,
+        name: "Ashtray Pie",
+        romanNumeral: "LVII",
+        fact: "Inhaling pi is not recommended. But some try. They don't speak anymore.",
+        caption: "A smoky crunch with a cough built in."
+    },
+    {
+        id: 58,
+        digit: 8,
+        name: "Robot Pie",
+        romanNumeral: "XC",
+        fact: "The robots know pi to a trillion places. But they won't share. They say the last digit is… [redacted].",
+        caption: "Beep boop."
+    },
+    {
+        id: 59,
+        digit: 6,
+        name: "Pi Pie",
+        romanNumeral: "LIX",
+        fact: "Infinity is not a number. It is a silence that screams. You cannot measure pi. You can only watch as it devours time, reason, and your sense of self.",
+        caption: "No matter how many times you slice it, it never ends."
+    },
+    {
+        id: 60,
+        digit: 9,
+        name: "Ethereal Pie",
+        romanNumeral: "LX",
+        fact: "Pi can't be touched, only felt. Like a ghost in a spreadsheet. Like a memory that never was... Or was it?",
+        caption: "It glows faintly and cutlery passes through it."
+    },
+    {
+        id: 61,
+        digit: 3,
+        name: "Your Fading Hopes and Dreams Pie",
+        romanNumeral: "LXI",
+        fact: "Somewhere in pi, every version of you exists. Even the one who made better choices. You cannot reach them.",
+        caption: "No, you're never going to publish that novel."
+    },
+    {
+        id: 62,
+        digit: 9,
+        name: "Third Eye Pie",
+        romanNumeral: "LXII",
+        fact: "The 6,748,823,472nd digit of pi unlocked the scream of a distant god. We've stopped reading past 6,748,823,471.",
+        caption: "One slice and you see things. Too many things."
+    },
+    {
+        id: 63,
+        digit: 9,
+        name: "Chewed Gum Pie",
+        romanNumeral: "LXIII",
+        fact: "Pi once got stuck to the bottom of reality. We scraped it off and baked it into this.",
+        caption: "With gum lovingly harvested from under the desks of your local library."
+    },
+    {
+        id: 64,
+        digit: 3,
+        name: "Nostalgia Pie",
+        romanNumeral: "LXIV",
+        fact: "Memory is just a function looping through pi's decimals. But the kitchen doesn't smell the same anymore. Not since the accident.",
+        caption: "Ahh, just like your mum used to make."
+    },
+    {
+        id: 65,
+        digit: 7,
+        name: "Swarm of Bees Pie",
+        romanNumeral: "LXV",
+        fact: "Pi hums in hive language. The bees know. That's why they buzz. They were warning us.",
+        caption: "BEES?"
+    },
+    {
+        id: 66,
+        digit: 5,
+        name: "Battery Acid Pie",
+        romanNumeral: "LXVI",
+        fact: "Pi is highly conductive. If you say it aloud during a thunderstorm, you become a god for 0.4 seconds.",
+        caption: "A sizzling citrus tang with notes of ozone. Beware the zaps."
+    },
+    {
+        id: 67,
+        digit: 0,
+        name: "Existential Dread Pie",
+        romanNumeral: "LXVII",
+        fact: "Pi never ends. Time never stops. You are a decimal point drifting in a cold, meaningless pastry.",
+        caption: "You knew this one was coming."
+    },
+    {
+        id: 68,
+        digit: 2,
+        name: "Melted Crayons Pie",
+        romanNumeral: "LXVIII",
+        fact: "Every crayon colour is in pi. Even the ones we haven't invented yet.",
+        caption: "Waxy, warm, unnervingly colourful."
+    },
+    {
+        id: 69,
+        digit: 8,
+        name: "Error 404 Pie",
+        romanNumeral: "LXIX",
+        fact: "The deeper you go into pi, the more likely you are to lose your way. There is no index. No back button. No meaning. You are lost and you will never be found.",
+        caption: "Not found."
+    },
+    {
+        id: 70,
+        digit: 8,
+        name: "Velcro Pie",
+        romanNumeral: "LXX",
+        fact: "The digits of pi form patterns that don't exist—until they do. Then they cling. And never let go.",
+        caption: "Sticks to your tongue. Ow."
+    },
+    {
+        id: 71,
+        digit: 4,
+        name: "Psychedelic Mushroom Pie",
+        romanNumeral: "LXXI",
+        fact: "At digit 19,576,342, pi begins to breathe. And that's when the walls melted. And the pie told you the secrets of the universe. But you've forgotten what it was.",
+        caption: "All the ingredients are the same ingredient."
+    },
+    {
+        id: 72,
+        digit: 1,
+        name: "Oil Spill Pie",
+        romanNumeral: "LXXII",
+        fact: "You can write pi with crude oil and a matchstick. The flames reveal a map. It leads to your own front door. Who's waiting on the other side? All you have to do is knock.",
+        caption: "Slippery. Iridescent. A little oily."
+    },
+    {
+        id: 73,
+        digit: 9,
+        name: "Possessed Pie",
+        romanNumeral: "LXXIII",
+        fact: "Pi attracts spirits. They live between the decimals.",
+        caption: "WARNING: Must exorcise before eating, unless you want to share."
+    },
+    {
+        id: 74,
+        digit: 7,
+        name: "Recursion Pie",
+        romanNumeral: "LXXIV",
+        fact: "This pie reminds you of this pie reminds you of this pie reminds you of this pie reminds you of this pie reminds you of this pie reminds you of this pie reminds you of this pie reminds you ofthis pie reminds you of",
+        caption: "You bite it, and inside is another pie. You bite that, and inside is another pie. You can see where this is going."
+    },
+    {
+        id: 75,
+        digit: 1,
+        name: "Lawn Clippings Pie",
+        romanNumeral: "LXXV",
+        fact: "Grass has no need for maths. And yet, when you whisper the digits of pi into a freshly-mown lawn, it listens.",
+        caption: "Fresh, earthy, disappointingly real."
+    },
+    {
+        id: 76,
+        digit: 6,
+        name: "Unresolved Trauma Pie",
+        romanNumeral: "LXXVI",
+        fact: "You've hidden your pain in numbers. Pi is whispering it back. Digit by digit.",
+        caption: "It's telling you to get therapy."
+    },
+    {
+        id: 77,
+        digit: 7,
+        name: "Sleep Paralysis Pie",
+        romanNumeral: "LXXVII",
+        fact: "The 66,666th digit of pi spells your name backwards. Go on. Check. I dare you.",
+        caption: "You're awake. You're not awake. You can't move. You're not alone..."
+    },
+    {
+        id: 78,
+        digit: 9,
+        name: "Pine Fresh Pie",
+        romanNumeral: "LXXVIII",
+        fact: "Somewhere inside pi is a full simulation of your 2008 road trip. It was never real.",
+        caption: "Tastes like the inside of a used car."
+    },
+    {
+        id: 79,
+        digit: 8,
+        name: "Regret Pie",
+        romanNumeral: "LXXIX",
+        fact: "You once knew the first 20 digits. You forgot them. Pi remembers.",
+        caption: "Sweet at first, then deeply bitter."
+    },
+    {
+        id: 80,
+        digit: 3,
+        name: "Biohazard Pie",
+        romanNumeral: "LXXX",
+        fact: "This pie is FDA-disapproved and mathematically incorrect. It pulses in base-3. It dreams in logarithms.",
+        caption: "It glows faintly. Do not inhale."
+    },
+    {
+        id: 81,
+        digit: 2,
+        name: "Glitching Pie",
+        romanNumeral: "LXXXI",
+        fact: "Pi was never real. ∆## the digits were lies. s(0) was the beginning. Or the end? Yes.",
+        caption: "///.slice_err0r//m#eat**—?pie pie pie pie PIE PIE PIE"
+    },
+    {
+        id: 82,
+        digit: 3,
+        name: "Obscure Jazz Reference Pie",
+        romanNumeral: "LXXXII",
+        fact: "At digit 88,888, pi improvises. It swings. It syncopates. The saxophone bleeds.",
+        caption: "Only three people understand it, but they love it."
+    },
+    {
+        id: 83,
+        digit: 8,
+        name: "Just a Sliver Pie",
+        romanNumeral: "LXXXIII",
+        fact: "The smaller the slice, the louder it screams. But only when microwaved. In fairness, we all scream when microwaved.",
+        caption: "Honestly, that's all I want! No, smaller than that. Just a crumb."
+    },
+    {
+        id: 84,
+        digit: 4,
+        name: "Imaginary Pie",
+        romanNumeral: "LXXXIV",
+        fact: "This pie equals √-π. You can only eat it in your dreams. You will choke on equations. When you awake, your eyes are filled with tears, but you can't remember why...",
+        caption: "Does it even exist?"
+    },
+    {
+        id: 85,
+        digit: 6,
+        name: "Melted Ice Cream Cone Pie",
+        romanNumeral: "LXXXV",
+        fact: "Flies buzz in Fibonacci. The digits of pi control their wings. You hear it now, don't you?",
+        caption: "Attracts flies. And something else."
+    },
+    {
+        id: 86,
+        digit: 2,
+        name: "Eyeball Pie",
+        romanNumeral: "LXXXVI",
+        fact: "You are not reading pi. Pi is reading you. The eyes blink in ternary. Do NOT blink back.",
+        caption: "Tryphophobia sufferers beware."
+    },
+    {
+        id: 87,
+        digit: 6,
+        name: "Uncanny Valley Pie",
+        romanNumeral: "LXXXVII",
+        fact: "This pie looks like your mother. Not exactly—but close enough that it shouldn't have blinked.",
+        caption: "Almost normal. Almost."
+    },
+    {
+        id: 88,
+        digit: 4,
+        name: "Deja Vu Pie",
+        romanNumeral: "LXXXVIII",
+        fact: "This slice is digit-for-digit identical to Pie 31. You've looped. But not by choice.",
+        caption: "Haven't I tasted this somewhere before?"
+    },
+    {
+        id: 89,
+        digit: 3,
+        name: "Eldritch Pie",
+        romanNumeral: "LXXXIX",
+        fact: "Somewhere in pi is the name of the thing that sleeps under the ocean. Eating this pie calls it closer.",
+        caption: "Stare into it too long and it stares back."
+    },
+    {
+        id: 90,
+        digit: 1,
+        name: "Dust Pie",
+        romanNumeral: "LVIII",
+        fact: "Eventually, all pies become dust. Even you. Especially you.",
+        caption: "Anyone? Anyone?"
+    },
+    {
+        id: 91,
+        digit: 3,
+        name: "Surrealist Pie",
+        romanNumeral: "XCI",
+        fact: "Pi melted across the clockface. The numbers danced with lobster phones. You bit your shadow and it bled custard.",
+        caption: "Like something you had in a dream, long ago"
+    },
+    {
+        id: 92,
+        digit: 2,
+        name: "Moss Pie",
+        romanNumeral: "XCII",
+        fact: "This pie predates crust. It hummed pi before the first breath. Now it grows again.",
+        caption: "Damp. Fuzzy. Ancient."
+    },
+    {
+        id: 93,
+        digit: 7,
+        name: "Nirvana Pie",
+        romanNumeral: "XCIII",
+        fact: "Somewhere between digits 999 and 1,000, you disappear. You become the pie. You are infinite.",
+        caption: "Tastes like heaven. Smells like forgiveness."
+    },
+    {
+        id: 94,
+        digit: 9,
+        name: "Steampunk Pie",
+        romanNumeral: "XCIV",
+        fact: "A clockwork pi was once built in 1893. It struck midnight at digit 314 and exploded in a spray of gears and jam.",
+        caption: "Sprockets. Steam. Anachronisms."
+    },
+    {
+        id: 95,
+        digit: 5,
+        name: "Melted Ice Pie",
+        romanNumeral: "XCV",
+        fact: "Time is a pie. It doesn't keep. The longer you wait, the less you remember the digits. Or your name.",
+        caption: "You waited too long to eat it."
+    },
+    {
+        id: 96,
+        digit: 0,
+        name: "Horrors Beyond Comprehension Pie",
+        romanNumeral: "XCVI",
+        fact: "The decimal never ends the decimal never ends the decimal never ends the—",
+        caption: "AAAAAHHHHH OH GOD OH GOD AAAAAAHHHHH"
+    },
+    {
+        id: 97,
+        digit: 2,
+        name: "Cat Hair Pie",
+        romanNumeral: "XCVII",
+        fact: "Your cat knows pi. Even if you don't have a cat. It knows.",
+        caption: "Just a regular slice of pie. But it's hairy."
+    },
+    {
+        id: 98,
+        digit: 3,
+        name: "Pure Ecstasy Pie",
+        romanNumeral: "XCVIII",
+        fact: "Every digit tastes like velvet lightning. Until you get to the one that isn't a number anymore.",
+        caption: "The thing she's having."
+    },
+    {
+        id: 99,
+        digit: 5,
+        name: "The Concept of Pie",
+        romanNumeral: "XCIX",
+        fact: "Time is a concept. Your inertial existence produces the illusion of time, but it is ultimately meaningless. It extends equally in all directions and you are a speck in its boundless ocean.",
+        caption: "It cannot be sliced. It cannot be served. It can only be understood. Briefly."
+    },
+    {
+        id: 100,
+        digit: 0,
+        name: "The Omega Pie",
+        romanNumeral: "C",
+        fact: "You did it. You learned all 100 digits. Feels good, right? Then why is there this emptiness? What is 100 on an infinite scale? Almost nothing. Almost, but not quite. It may be a single grain of sand on a never-ending beach, yet it is a part of the beach no less.",
+        caption: "The center of the spiral becomes the edge. A new center lies on the horizon. Beyond that? No one knows."
+    }
+	];
+
+	  const PIE_IMAGES = [
+	        "https://i.imgur.com/Ve81iBj.png", // (Classic Apple Pie)
+	        "https://i.imgur.com/wv93jaf.png", // (Blueberry Pie)
+	        "https://i.imgur.com/42GNKvZ.png", // (Cherry Pie)
+	        "https://i.imgur.com/qQueGcO.png", // (Pecan Pie) 
+	        "https://i.imgur.com/AWayVxk.png", // (Lemon Meringue Pie)
+  	        "https://i.imgur.com/Z01Qm6L.png", // (Chocolate Cream Pie)
+		"https://i.imgur.com/0llOdWO.png", // (Peach Pie)
+	        "https://i.imgur.com/n2KuQnG.png", // (Banana Cream Pie)
+	        "https://i.imgur.com/23lwqk2.png", // (Pumpkin Pie)
+	        "https://i.imgur.com/q1J3x4G.png", // (Key Lime Pie)
+		"https://i.imgur.com/tt1aIst.png", // 11 sheps
+		"https://i.imgur.com/uzo9xq9.png", // 12 banof 
+		"https://i.imgur.com/NfaNaKE.png", // 13 
+		"https://i.imgur.com/d91WKbh.png", // 14 mississ
+		"https://i.imgur.com/t98gFde.png", // 15
+		"https://i.imgur.com/x9CJFdZ.png", // 16
+		"https://i.imgur.com/cvWsiem.png", // 17
+		"https://i.imgur.com/clxWGYO.png", // 18
+		"https://i.imgur.com/D2iX3zd.png", // 19
+		"https://i.imgur.com/hS8ZVyN.png", // 20 shavingc
+		"https://i.imgur.com/7DqyNHF.png", // 21
+		"https://i.imgur.com/yhn4NH1.png", // 22
+		"https://i.imgur.com/xGLohz7.png", // 23
+		"https://i.imgur.com/XMQAUtI.png", // 24
+		"https://i.imgur.com/JjETyop.png", // 25
+		"https://i.imgur.com/o2czsn9.png", // 26
+		"https://i.imgur.com/H1reGYC.png", // 27
+		"https://i.imgur.com/a9pZcRa.png", // 28 mystery
+		"https://i.imgur.com/idNCsfE.png", // 29 kiwi
+		"https://i.imgur.com/wgICQHN.png", // 30
+		"https://i.imgur.com/yhvphZm.png", // 31
+		"https://i.imgur.com/CUxyWcO.png", // 32
+		"https://i.imgur.com/IO3w212.png", // 33
+		"https://i.imgur.com/UzJU2fA.png", // 34 toothpaste
+		"https://i.imgur.com/FsGqb44.png", // 35
+		"https://i.imgur.com/GN8LdAB.png", // 36
+		"https://i.imgur.com/VYArhOJ.png", // 37 custard
+		"https://i.imgur.com/8OWNtwa.png", // 38
+		"https://i.imgur.com/qhHHsFf.png", // 39
+		"https://i.imgur.com/ts4Uhy3.png", // 40 wallpaper
+		"https://i.imgur.com/rmRtmDW.png", // 41 sweetpot
+		"https://i.imgur.com/JJl0BGR.png", // 42
+		"https://i.imgur.com/5SOAYyv.jpeg", // 43
+		"https://i.imgur.com/VWq7VRa.png", // 44
+		"https://i.imgur.com/4JDIgva.png", // 45
+		"https://i.imgur.com/fmH2tMw.png", // 46
+		"https://i.imgur.com/pn85fE1.png", // 47
+		"https://i.imgur.com/CaIypnJ.png", // 48 blackh
+		"https://i.imgur.com/KptbhRZ.png", // 49 lint
+		"https://i.imgur.com/ZgoXqx6.png", // 50 whoop
+		"https://i.imgur.com/HgYaLfB.png", // 51 nothing
+		"https://i.imgur.com/1eUA7bn.png", // 52
+		"https://i.imgur.com/rwpMFWc.png", // 53
+		"https://i.imgur.com/X7KFIGN.png", // 54 bakewell
+		"https://i.imgur.com/qC3Fmbx.png", // 55 broken g
+		"https://i.imgur.com/wgICQHN.png", // 56 djv
+		"https://i.imgur.com/NdFQGkz.png", // 57 ash
+		"https://i.imgur.com/9qPIiJs.png", // 58 robot
+		"https://i.imgur.com/Luj5Pz7.png", // 59 pi
+		"https://i.imgur.com/TWJE6eT.png", // 60
+		"https://i.imgur.com/6kDhttw.png", // 61 fading
+		"https://i.imgur.com/YGLAwp1.png", // 62 thirdeye
+		"https://i.imgur.com/8ZXTukG.png", // 63 chewgum
+		"https://i.imgur.com/AjdNo99.png", // 64
+		"https://i.imgur.com/qPQCMOx.png", // 65
+		"https://i.imgur.com/tvtZUfJ.png", // 66
+		"https://i.imgur.com/wpHqET9.png", // 67 existential
+		"https://i.imgur.com/rpssLxG.png", // 68 crayon
+		"https://i.imgur.com/NftYrpU.png", // 69 404
+		"https://i.imgur.com/iAMp70Q.png", // 70 velcro
+		"https://i.imgur.com/jTUyOWp.png", // 71 psych
+		"https://i.imgur.com/g20kQzF.png", // 72 oil
+		"https://i.imgur.com/tY6TcaK.png", // 73 possess
+		"https://i.imgur.com/4JZzdOr.png", // 74 recur
+		"https://i.imgur.com/M9UQl6C.png", // 75 lawn
+		"https://i.imgur.com/rh9YHh3.png", // 76 trauma
+		"https://i.imgur.com/RmHAZue.png", // 77 sleep
+		"https://i.imgur.com/ltaO0cv.png", // 78 pine
+		"https://i.imgur.com/W29qZFz.png", // 79 regret
+		"https://i.imgur.com/Kz9KTLN.png", // 80 biohaz
+		"https://i.imgur.com/dtTKI3P.png", // 81 glitch
+		"https://i.imgur.com/c6VeU0j.png", // 82 jazz
+		"https://i.imgur.com/MvdXZSR.png", // 83
+		"https://i.imgur.com/shzkqkE.png", // 84
+		"https://i.imgur.com/Gz78OSW.png", // 85 icecream
+		"https://i.imgur.com/tIrETH3.png", // 86 eye
+		"https://i.imgur.com/FTWPtTh.png", // 87 uncanny
+		"https://i.imgur.com/wgICQHN.png", // 88 djv
+		"https://i.imgur.com/jXZTjMQ.png", // 89 Eldritch
+		"https://i.imgur.com/MabH3Yd.png", // 90 dust
+		"https://i.imgur.com/DRCoETM.png", // 91 
+		"https://i.imgur.com/rvzUnWc.png", // 92
+		"https://i.imgur.com/Id0BdzQ.png", // 93 
+		"https://i.imgur.com/itqtTRE.png", // 94
+		"https://i.imgur.com/z5EZlcV.png", // 95
+		"https://i.imgur.com/uWjsDpD.png", // 96 horrors
+		"https://i.imgur.com/njIAzZ0.png", // 97 cat
+		"https://i.imgur.com/7h1kKDS.png", // 98
+		"https://i.imgur.com/20sbnSV.png", // 99
+		"https://i.imgur.com/2h2sMSM.jpeg", // 100
+	  ]; 
+
+	  // Default image for pies without a specific image
+	  const DEFAULT_PIE_IMAGE = "https://i.imgur.com/Ve81iBj.png";
+
+        // Function to celebrate completing a line of 10 digits
+	function celebrateLine() {
+	    setTimeout(() => {
+	  	// Play chord notes simultaneously for a piano-like effect
+	    	const root = 523.25;  // C5
+	    	playHarpNote(root, 0.6);         // C
+	    	playHarpNote(root * 5/4, 0.6);   // E
+	    	playHarpNote(root * 3/2, 0.6);   // G
+
+	    	confetti({
+	            particleCount: 100,
+	            spread: 70,
+	            origin: { y: 0.6 },
+	            colors: ['#9c27b0', '#fadd05', '#e0c3ff']
+	    	});
+            }, 580); // 580ms delay
+	}
+
+        // Initialize the app
+	function init() {
+	    resetGame();
+	    updateDisplay();
+	    loadEarnedPies();
+	    
+	    // Event listeners
+	    studyModeButton.addEventListener("click", () => {
+	        initAudio(); // Initialize audio on first interaction
+	        switchMode("study");
+	    });
+	    recallModeButton.addEventListener("click", () => {
+	        initAudio(); // Initialize audio on first interaction
+	        switchMode("recall");
+	    });
+	    
+	    keys.forEach(key => {
+	        key.addEventListener("click", (e) => {
+	            // Initialize audio on first interaction
+	            initAudio();
+	            
+	            // Add active class to show "light up" effect
+	            key.classList.add("active");
+            
+	            // Play the corresponding note
+	            playDigitSound(key.getAttribute("data-value"));
+            
+	            // Remove the active class after a short delay
+	            setTimeout(() => {
+	                key.classList.remove("active");
+	            }, 200);
+            
+	            handleKeyPress(key.getAttribute("data-value"));
+	        });
+	    });
+    
+	    restartButton.addEventListener("click", () => {
+	        overlay.style.display = "none";
+	        resetGame();
+	        updateDisplay();
+	    });
+    
+	    // Set up keyboard input
+	    document.addEventListener("keydown", (event) => {
+	        if (event.key >= '0' && event.key <= '9') {
+	            // Initialize audio on first interaction
+	            initAudio();
+            
+	            // Find and highlight the corresponding key
+	            const keyElement = document.querySelector(`.key[data-value="${event.key}"]`);
+	            if (keyElement) {
+	                keyElement.classList.add("active");
+	                
+	                // Play the corresponding note
+	                playDigitSound(event.key);
+	                
+	                setTimeout(() => {
+	                    keyElement.classList.remove("active");
+	                }, 200);
+	            }
+            
+	            handleKeyPress(event.key);
+	        } else if (event.key === 'Escape' || event.key === 'r') {
+	            resetGame();
+	            updateDisplay();
+	        }
+	    });
+
+		document.getElementById("redo-button").addEventListener("click", () => {
+		    initAudio(); // Initialize audio on first interaction
+		    redoCurrentLine();
+		});
+
+		document.getElementById("skip-button").addEventListener("click", () => {
+		    initAudio(); // Initialize audio on first interaction
+		    skipToNextLine();
+		});
+
+
+	}
+        
+	function switchMode(mode) {
+	    currentMode = mode;
+	    studyModeButton.classList.toggle("active", mode === "study");
+	    recallModeButton.classList.toggle("active", mode === "recall");
+	    
+	    // Toggle visibility and functionality of redo and skip buttons
+	    const redoButton = document.getElementById("redo-button");
+	    const skipButton = document.getElementById("skip-button");
+	    
+	    if (mode === "study") {
+	        redoButton.style.visibility = "visible";
+	        skipButton.style.visibility = "visible";
+	        redoButton.style.pointerEvents = "auto";
+	        skipButton.style.pointerEvents = "auto";
+	    } else {
+	        redoButton.style.visibility = "hidden";
+	        skipButton.style.visibility = "hidden";
+	        redoButton.style.pointerEvents = "none";
+	        skipButton.style.pointerEvents = "none";
+	    }    
+	    resetGame();
+	    isFirstGroup = true;
+	    updateDisplay();
+	}
+
+        // Reset the game
+        function resetGame() {
+	    earnedPies = [];
+	    saveEarnedPies();
+            enteredDigits = "";
+            currentDigitIndex = 0;
+            messageElement.textContent = "";
+	    canSkip = false;
+	    currentLine = 0;
+	    isFirstGroup = true;
+        }
+        
+	// Update the display based on current state
+	function updateDisplay() {
+		let formatted = "";
+
+		if (isFirstGroup && enteredDigits.length > 0) {
+		    formatted = enteredDigits.charAt(0);
+		    if (enteredDigits.length > 1) {
+		        formatted += "." + enteredDigits.slice(1);
+		    }
+		} else {
+		    formatted = enteredDigits;
+		}
+
+
+	    console.log("Formatted display:", formatted, "Length:", formatted.length);    
+	    enteredDigitsElement.textContent = formatted;
+    
+	    // Show hint in study mode
+	    if (currentMode === "study" && currentDigitIndex < MAX_DIGITS) {
+	        // Check if we've reached a 10-digit boundary
+	        if (enteredDigits.length > 0 && enteredDigits.length % 10 === 0 && !isAnimating) {
+	            console.log("10-digit boundary reached, not showing hint");
+	            hintElement.textContent = "";
+	            return;
+	        }
+        
+	        // If not at a 10-digit boundary or already animating, show the next digit
+	        if (!isAnimating) {
+	            // Get the next expected digit
+	            let expectedDigit = PI_DIGITS_CLEAN.charAt(currentDigitIndex);
+
+		if (isFirstGroup) {
+		    if (currentDigitIndex === 0) {
+		        hintElement.textContent = "3";
+		    } else if (currentDigitIndex === 1) {
+		        hintElement.textContent = ".1";
+		    } else {
+		        const raw = PI_DIGITS_CLEAN.slice(currentDigitIndex, currentDigitIndex + 2);
+		        hintElement.textContent = raw.charAt(0);
+		    }
+		} else {
+		    hintElement.textContent = PI_DIGITS_CLEAN.charAt(currentDigitIndex);
+		}
+	            
+	            }
+	        } else {
+	            hintElement.textContent = "";
+	        }
+	    }
+
+	// Add a flag to track if animation is in progress
+	isAnimating = false;
+
+	function startDigitGlowSequence() {
+	    resetAnimationIfStuck(); 
+	    console.log("Starting digit glow sequence");
+	    isAnimating = true;
+	    hintElement.textContent = "";
+    
+	    // Get the current display text
+	    const displayText = isFirstGroup
+	        ? enteredDigits.charAt(0) + "." + enteredDigits.slice(1)
+    		: enteredDigits;
+
+	    console.log("Display text:", displayText);
+    
+	    // Clear the current display
+	    enteredDigitsElement.textContent = "";
+    
+	    // Create individual spans for each digit
+	    for (let i = 0; i < displayText.length; i++) {
+	        const digitSpan = document.createElement("span");
+	        digitSpan.textContent = displayText.charAt(i);
+	        digitSpan.classList.add("digit");
+	        digitSpan.setAttribute("data-index", i);
+	        enteredDigitsElement.appendChild(digitSpan);
+	    }
+    
+	    // Check if there are any digits to animate
+	    const digits = enteredDigitsElement.querySelectorAll(".digit");
+            console.log("Number of digit spans created:", digits.length);
+	    if (digits.length === 0) {
+	        console.error("No digits to animate!");
+	        isAnimating = false;
+	        updateDisplay();
+	        return;
+	    }
+    
+	    // Start the sequence animation
+	    animateDigitSequence(0, displayText);
+
+	}
+
+	function animateDigitSequence(index, displayText) {
+	    if (index >= displayText.length) {
+	       // Animation complete, but don't roll up automatically
+	       isAnimating = false;
+	       canSkip = true;
+
+	       return;
+	    }
+
+	    const digits = enteredDigitsElement.querySelectorAll(".digit");
+	    
+	    // Safety check
+	    if (index >= digits.length) {
+    		console.error("Index out of bounds:", index, "but digits length is", digits.length);
+    		isAnimating = false;
+    		canSkip = true;
+    		return;
+	    }
+    
+	    const currentDigit = digits[index];
+    
+	    // Skip animating the decimal point
+	    if (currentDigit.textContent === ".") {
+	        animateDigitSequence(index + 1, displayText);
+	        return;
+	    }
+
+	    // Add glow animation class
+	    currentDigit.classList.add("glow-digit");
+    
+	    // Add a short delay before lighting up the keypad button
+	    setTimeout(() => {
+	        // Light up the corresponding keypad button with hover effect
+	        const keyValue = currentDigit.textContent;
+
+	        // Play the corresponding sound
+	        playDigitSound(keyValue);
+
+	        const keypadButton = document.querySelector(`.key[data-value="${keyValue}"]`);
+	        if (keypadButton) {
+	            keypadButton.classList.add("key-glow");
+	            setTimeout(() => {
+	                keypadButton.classList.remove("key-glow");
+	            }, 380); // Shorter duration for keypad glow
+	        }
+	    }, 150); // 150ms delay
+
+	    // Move to the next digit after animation
+	    setTimeout(() => {
+	        currentDigit.classList.remove("glow-digit");
+	        animateDigitSequence(index + 1, displayText);
+	    }, 800);
+	}	
+
+	// Function to roll up the display
+	function rollUpDisplay(wasSkip = false) {
+	    enteredDigitsElement.classList.add("roll-up");
+	
+	    // After animation completes
+		setTimeout(() => {
+		    enteredDigitsElement.classList.remove("roll-up");
+		    enteredDigitsElement.innerHTML = "";
+
+		    // Only clear internal digits if skip
+		    if (wasSkip) {
+		        enteredDigits = "";
+		    }
+
+		    // Move to next line
+		    currentLine++;
+		    currentDigitIndex = currentLine * 10;
+		    isFirstGroup = currentLine === 0;
+
+		    isAnimating = false;
+		    canSkip = false;
+
+		    // ✅ ALWAYS update the display after resetting logic
+		    updateDisplay();
+		}, 1000); // match animation duration
+
+	}
+
+
+	function resetAnimationIfStuck() {
+	    // Clear any existing safety timeout
+	    if (animationSafetyTimeout) {
+	        clearTimeout(animationSafetyTimeout);
+	    }
+    
+	    // Set a new safety timeout - if animation takes longer than 10 seconds, reset it
+	    animationSafetyTimeout = setTimeout(() => {
+	        console.warn("Animation safety timeout triggered - resetting animation state");
+	        isAnimating = false;
+	        enteredDigitsElement.classList.remove("roll-up");
+	        updateDisplay();
+	    }, 10000); // 10 seconds timeout
+	}
+
+	// Handle key press
+	function handleKeyPress(value) {
+	    // Prevent input during animations
+	    if (isAnimating || currentDigitIndex >= MAX_DIGITS) return;
+	    
+	    let expectedDigit = PI_DIGITS_CLEAN.charAt(currentDigitIndex);	
+	    if (expectedDigit === ".") {
+	        expectedDigit = PI_DIGITS.charAt(++currentDigitIndex);
+	    }
+
+	    // Add the digit to our input
+	    enteredDigits += value;
+	    currentDigitIndex++;
+
+	    console.log("Current digits:", enteredDigits, "Length:", enteredDigits.length);
+    
+	    // Check if we need to roll up (every 10 digits)
+	    if (enteredDigits.length === 10) {
+	       	if (currentMode === "recall") {
+		    updateDisplay();
+		    updateEarnedPies();
+		    celebrateLine();
+	    	    enteredDigitsElement.classList.add("roll-up");
+	        setTimeout(() => {
+	            enteredDigitsElement.classList.remove("roll-up");
+	            moveToNextLine();
+	        }, 1000);
+        
+	        return; // Skip updateDisplay call
+	    } else if (currentMode === "study") {
+	        updateDisplay();
+	        startDigitGlowSequence();
+	        return;
+	    }
+	}
+    
+		// In recall mode:
+		if (currentMode === "recall") {
+		    if (value !== expectedDigit) {
+		        // In recall mode, show result when wrong digit is entered
+		        showResult(false);
+		        return;
+		    } else {
+		        // If digit is correct, track it for pie counting
+		        const currentPosition = currentLine * 10 + enteredDigits.length;
+		        if (currentPosition <= 100 && !earnedPies.includes(currentPosition)) {
+		            earnedPies.push(currentPosition);
+		            saveEarnedPies();
+		        }
+        
+		        // Check if we've completed all 100 digits
+		        if (currentLine === 9 && enteredDigits.length === 10) {
+		            showResult(true);
+		            return;
+		        }
+		    }
+		} else {
+		    // In study mode
+		    if (value !== expectedDigit) {
+		        // Incorrect digit in study mode, remove it
+		        enteredDigits = enteredDigits.slice(0, -1);
+		        currentDigitIndex--;
+		    } else if (currentLine === 9 && enteredDigits.length === 10) {
+		        // Completed all 100 digits in study mode
+		        showResult(true);
+		        return;
+		    }
+		}
+
+
+   	    updateDisplay(); 
+
+	}
+
+	function moveToNextLine() {
+	    currentLine++;
+
+	    if (currentLine >= 10) {
+	        showFinalScore();
+	        return;
+	    }
+
+
+	    enteredDigits = ""; // reset BEFORE updating display
+	    currentDigitIndex = currentLine * 10;
+	    isFirstGroup = currentLine === 0;
+
+	    updateDisplay();
+
+	}
+
+	function saveEarnedPies() {
+	    localStorage.setItem('earnedPies', JSON.stringify(earnedPies));
+	}
+
+	function loadEarnedPies() {
+	    const saved = localStorage.getItem('earnedPies');
+	    if (saved) {
+	        earnedPies = JSON.parse(saved);
+	    }
+	}
+
+	function redoCurrentLine() {
+	    if (isAnimating) {
+       		isAnimating = false;
+                document.querySelectorAll(".glow-digit").forEach(el => el.classList.remove("glow-digit"));
+                document.querySelectorAll(".key-glow").forEach(el => el.classList.remove("key-glow"));
+            }
+
+	    if (enteredDigits.length > 0) {
+	        // Case 1: some digits typed → reset current line
+	        enteredDigits = "";
+		currentDigitIndex = currentLine * 10;
+		isFirstGroup = currentLine === 0;
+
+	    } else if (currentLine > 0) {
+	        // Case 2: no digits typed → go back a line
+	        currentLine--;
+	        currentDigitIndex = currentLine * 10;
+	        isFirstGroup = currentLine === 0;
+	        enteredDigits = "";
+	    }
+
+	    canSkip = false;
+	    enteredDigitsElement.innerHTML = "";
+	    updateDisplay();
+
+	    setTimeout(() => {
+	        messageElement.textContent = "";
+	    }, 1000);
+	}
+
+	
+	function skipToNextLine() {
+	    if (isAnimating) {
+	        isAnimating = false;
+	        document.querySelectorAll(".glow-digit").forEach(el => el.classList.remove("glow-digit"));
+	        document.querySelectorAll(".key-glow").forEach(el => el.classList.remove("key-glow"));
+	    }
+
+	    rollUpDisplay(true);
+	}
+
+
+	// Function to mark pies as earned based on currentDigitIndex
+	function updateEarnedPies() {
+	    if (currentMode === "recall") {
+	        // Calculate the block of digits just completed:
+	        // line 0 → digits 1–10, line 1 → 11–20, etc.
+	        const start = currentLine * 10 + 1;
+	        const end   = start + enteredDigits.length - 1; // should be start+9
+
+	        for (let i = start; i <= end; i++) {
+	            // don’t push duplicates, and don’t exceed 100
+	            if (i <= 100 && !earnedPies.includes(i)) {
+	                earnedPies.push(i);
+	            }
+	        }
+	    }
+	    saveEarnedPies();
+	}
+
+        
+        // Show result overlay
+        function showResult(success = true) {
+            let piesCount = earnedPies.length;
+            
+	    updateEarnedPies();
+
+            overlay.style.display = "flex";
+            
+	if (success && currentDigitIndex >= MAX_DIGITS) {
+                resultTitle.textContent = "Master Baker! 🥧";
+                resultMessage.textContent = `Congratulations! You've memorised the first 100 digits of pie. Now you can open a full bakery!`;
+            } else {
+                resultTitle.textContent = "Nice Try! 🥧";
+                resultMessage.textContent = `You've baked ${piesCount} pies!`;
+            }
+
+	    // Add button to view pie collection
+	    const viewPiesButton = document.createElement("button");
+	    viewPiesButton.textContent = "Visit Pi Bakery";
+	    viewPiesButton.className = "overlay-button";
+	    viewPiesButton.style.marginLeft = "10px";
+	    viewPiesButton.addEventListener("click", showPieCollection);
+    
+	    // Make sure we don't add multiple buttons
+	    const existingViewButton = document.querySelector("#view-pies-button");
+	    if (!existingViewButton) {
+	        document.querySelector(".overlay-content").appendChild(viewPiesButton);
+	        viewPiesButton.id = "view-pies-button";
+	    }
+        }
+
+	function showPieCollection() {
+	    // Hide result overlay if it's showing
+	    overlay.style.display = "none";
+    
+	    // Create pie collection overlay if it doesn't exist
+	    let pieCollectionOverlay = document.getElementById("pie-collection-overlay");
+	    if (!pieCollectionOverlay) {
+	        pieCollectionOverlay = document.createElement("div");
+	        pieCollectionOverlay.id = "pie-collection-overlay";
+	        pieCollectionOverlay.className = "overlay";
+	        pieCollectionOverlay.style.flexDirection = "column";
+	        
+	        const pieCollectionContent = document.createElement("div");
+	        pieCollectionContent.className = "overlay-content pie-collection-content";
+	        pieCollectionContent.style.width = "80%";
+	        pieCollectionContent.style.maxWidth = "800px";
+	        pieCollectionContent.style.padding = "30px";
+	        
+	        const pieCollectionTitle = document.createElement("h2");
+	        pieCollectionTitle.textContent = "Your Pi Bakery";
+	        pieCollectionTitle.style.marginBottom = "20px";
+	        
+	        const pieGrid = document.createElement("div");
+	        pieGrid.id = "pie-grid";
+	        pieGrid.className = "pie-grid";
+        
+	        const pieDetailCard = document.createElement("div");
+	        pieDetailCard.id = "pie-detail-card";
+	        pieDetailCard.className = "pie-detail-card";
+	        pieDetailCard.style.display = "none";
+	        
+	        const backButton = document.createElement("button");
+	        backButton.textContent = "Back to Game";
+	        backButton.className = "overlay-button";
+	        backButton.style.marginTop = "20px";
+	        backButton.addEventListener("click", () => {
+	            pieCollectionOverlay.style.display = "none";
+		    resetGame();
+		    updateDisplay();
+	        });
+        
+	        pieCollectionContent.appendChild(pieCollectionTitle);
+	        pieCollectionContent.appendChild(pieDetailCard);
+	        pieCollectionContent.appendChild(pieGrid);
+	        pieCollectionContent.appendChild(backButton);
+        
+	        pieCollectionOverlay.appendChild(pieCollectionContent);
+	        document.body.appendChild(pieCollectionOverlay);
+        
+	        // Add styles for pie collection
+	        const style = document.createElement("style");
+	        style.textContent = `
+	            .pie-collection-content {
+	                background: linear-gradient(135deg, #9c27b0, #6a1b9a);
+	                overflow-y: auto;
+	                max-height: 80vh;
+	            }
+
+		    .pie-collection-content h2 {
+		        font-family: "Nova Square", sans-serif;
+		        color: #e0c3ff;
+		        text-shadow: 0px 0px 10px rgba(156, 39, 176, 0.7);
+		    }
+            
+	            .pie-grid {
+	                display: grid;
+	                grid-template-columns: repeat(10, 1fr);
+	                grid-gap: 15px;
+	                margin-bottom: 20px;
+			margin-left: auto;
+			margin-right: auto;
+			width: fit-content;
+   		        justify-content: center;
+	            }
+
+			@media (max-width: 768px) {
+			    .pie-grid {
+			        grid-template-columns: repeat(5, 1fr);
+			    }
+			}
+
+			@media (max-width: 480px) {
+			    .pie-grid {
+			        grid-template-columns: repeat(4, 1fr);
+			        grid-gap: 8px;
+			    }
+    
+			    .pie-item {
+			        width: 32px;
+			        height: 32px;
+			        font-size: 14px;
+			    }
+			}
+	            
+	            .pie-item {
+	                width: 40px;
+	                height: 40px;
+	                border-radius: 50%;
+	                display: flex;
+	                align-items: center;
+	                justify-content: center;
+	                cursor: pointer;
+	                position: relative;
+	                background: #e0c3ff;
+	                color: #4a148c;
+	                font-weight: bold;
+	                transition: all 0.3s ease;
+	                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+		        font-family: "Tilt Neon", sans-serif;
+		        font-optical-sizing: auto;
+		        font-weight: 400;
+		        font-style: normal;
+	            }
+            
+	            .pie-item:hover {
+	                transform: scale(1.1);
+	            }
+	            
+	            .pie-item.unlocked {
+	                background: #fadd05;
+	                box-shadow: 0 2px 8px rgba(250, 221, 5, 0.6);
+	            }
+            
+	            .pie-item.locked {
+	                background: #9e9e9e;
+	                color: #616161;
+	                cursor: not-allowed;
+	                opacity: 0.7;
+	            }
+            
+	            .pie-detail-card {
+	                background: #ffffff;
+	                color: #333;
+	                padding: 20px;
+	                border-radius: 10px;
+	                margin-bottom: 20px;
+	                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+		        display: none;
+	            }
+            
+	            .pie-detail-card h3 {
+	                color: #9c27b0;
+	                margin-top: 0;
+			margin-bottom: 15px;
+			font-family: "Nova Square", sans-serif;
+			text-align: center;
+	            }
+            
+			.pie-card-content {
+			    display: flex;
+			    gap: 20px;
+			}
+
+			.pie-card-left {
+			    flex: 0 0 40%;
+			    display: flex;
+		    flex-direction: column;
+			    align-items: center;
+			}
+
+			.pie-image {
+			    width: 150px;
+			    height: auto;
+			    max-height: 150px
+			    background-size: contain;
+			    background-repeat: no-repeat;
+			    background-position: center;
+			    margin-bottom: 15px;
+			}
+
+			.pie-position-info {
+			    display: flex;
+			    justify-content: space-around;
+			    margin-bottom: 15px;
+			    font-family: "Tilt Neon", sans-serif;
+			}
+
+			.digit-info,
+			    margin: 5px 0;
+			    flex: 1;
+			    text-align: center;
+			    margin-right: 20px; 
+
+			.position-info {
+			    margin: 5px 0;
+			    flex: 1;
+			    text-align: center;
+			    margin-left: 20px;
+			}
+
+			.pie-caption {
+			    text-align: center;
+			    font-style: italic;
+			    margin-top: 5px;
+			    font-family: "Tilt Neon", sans-serif;
+			}
+
+			.pie-position-info p {
+			    margin: 5px 0;
+			}
+
+			.pie-card-right {
+			    flex: 1;
+			    display: flex;
+			    flex-direction: column;
+			}
+
+			.pie-fact {
+			    background: #f5f5f5;
+			    padding: 15px;
+			    border-radius: 8px;
+			    font-style: normal;
+			    height: 100%;
+			    display: flex;
+			    flex-direction: column;
+			    justify-content: center;
+			}
+
+			@media (max-width: 600px) {
+			    .pie-card-content {
+			        flex-direction: column;
+			    }
+    
+			    .pie-card-left {
+			        margin-bottom: 15px;
+			    }
+			}
+		    .overlay-button {
+		        font-family: "Nova Square", sans-serif;
+	        `;
+	        document.head.appendChild(style);
+	    }
+    
+	    // Populate pie grid
+	    populatePieGrid();
+    
+	    // Show pie collection overlay
+	    pieCollectionOverlay.style.display = "flex";
+	}
+
+	// Function to populate the pie grid
+	function populatePieGrid() {
+	    const pieGrid = document.getElementById("pie-grid");
+	    pieGrid.innerHTML = "";
+	    
+	    // Load earned pies from local storage
+	    loadEarnedPies();
+    
+	    // Create 100 pie items (10x10 grid)
+	    for (let i = 1; i <= 100; i++) {
+	        const pieItem = document.createElement("div");
+	        pieItem.className = "pie-item";
+        
+	        // Check if this pie is earned
+	        const isEarned = earnedPies.includes(i);
+	        if (isEarned) {
+	            pieItem.classList.add("unlocked");
+	            pieItem.textContent = i;
+            
+	            // Add click event to show details
+	            pieItem.addEventListener("click", () => showPieDetails(i));
+	        } else {
+	            pieItem.classList.add("locked");
+	            pieItem.textContent = "?";
+	        }
+        
+	        pieGrid.appendChild(pieItem);
+	    }
+	}
+
+	// Function to show pie details
+	function showPieDetails(pieId) {
+	    const pieDetailCard = document.getElementById("pie-detail-card");
+	    
+	    // Find the pie data (handle case for pies beyond our initial data)
+	    let pieData;
+	    if (pieId <= PIE_DATA.length) {
+	        pieData = PIE_DATA[pieId - 1];
+	    } else {
+	        // Generate placeholder data for pies we haven't defined yet
+	        pieData = {
+	            id: pieId,
+	            digit: PI_DIGITS.charAt(pieId), // Get actual digit from Pi
+	            name: `Mystery Pie #${pieId}`,
+	            romanNumeral: pieId, // We'd need a converter for larger numbers
+	            fact: `Placeholder fact for Pi digit ${pieId}`
+	        };
+	    }
+
+	    // Get the appropriate image URL for this pie
+	    let imageUrl;
+	    if (pieId <= PIE_IMAGES.length) {
+	        imageUrl = PIE_IMAGES[pieId - 1];
+	    } else {
+	        imageUrl = DEFAULT_PIE_IMAGE;
+	    }
+    
+	    // Update the detail card
+	    pieDetailCard.innerHTML = `
+	    <h3>${pieData.name}</h3>
+	    <div class="pie-card-content">
+	        <div class="pie-card-left">
+	            <img src="${imageUrl}" class="pie-image" alt="${pieData.name}">
+		<p class="pie-caption">${pieData.caption || "A mysterious pie!"}</p>
+		</div>
+		<div class="pie-card-right">
+		    <div class="pie-position-info">
+	               <p class="digit-info"><strong>Digit:</strong> ${pieData.digit}</p>
+	               <p class="position-info"><strong>Position:</strong> ${pieData.romanNumeral}</p>
+		    </div>
+		    <div class="pie-fact">
+		        <strong>Did you know...</strong> ${pieData.fact}
+		    </div>
+		</div>
+	    </div>
+	`;
+    
+	    pieDetailCard.style.display = "block";
+	}
+        
+        // Initialize the app
+        init();
+    </script>
+</body>
+</html>
