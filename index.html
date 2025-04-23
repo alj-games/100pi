@@ -285,7 +285,9 @@
 	let earnedPies = [];
 	let canSkip = false;
 	let currentLineStartIndex = 0;
-	let currentLine = 0; // Track which line we're on (0-based)
+	let currentLine = 0;
+	let piesEarnedThisSession = 0;
+	let totalCorrectDigits = 0;
 
 	// Audio context for generating sounds
 	let audioContext;
@@ -385,7 +387,7 @@
         id: 1,
         digit: 3,
         name: "Apple Pie",
-        romanNumeral: "I",
+        romanNumeral: "1",
         fact: "Pi can be used to calculate the circumference of any pie! Unless it was a square pie… What a horrifying concept.",
         caption: "An all-American classic!"
     },
@@ -1415,8 +1417,9 @@
 
         // Reset the game
         function resetGame() {
-	    earnedPies = [];
-	    saveEarnedPies();
+  	    console.log("Game reset - piesEarnedThisSession set to 0");
+	    piesEarnedThisSession = 0;
+	    totalCorrectDigits = 0;
             enteredDigits = "";
             currentDigitIndex = 0;
             messageElement.textContent = "";
@@ -1667,7 +1670,8 @@
 		        }
         
 		        // Check if we've completed all 100 digits
-		        if (currentLine === 9 && enteredDigits.length === 10) {
+		        const totalDigitsEntered = currentLine * 10 + enteredDigits.length;
+		        if (totalDigitsEntered >= 100) {
 		            showResult(true);
 		            return;
 		        }
@@ -1759,21 +1763,27 @@
 	    rollUpDisplay(true);
 	}
 
-
-	// Function to mark pies as earned based on currentDigitIndex
 	function updateEarnedPies() {
+	    console.log(`Updating earned pies. Current line: ${currentLine}, enteredDigits length: ${enteredDigits.length}`);
+	    
 	    if (currentMode === "recall") {
-	        // Calculate the block of digits just completed:
-	        // line 0 → digits 1–10, line 1 → 11–20, etc.
-	        const start = currentLine * 10 + 1;
-	        const end   = start + enteredDigits.length - 1; // should be start+9
+            if (enteredDigits.length === 100) {
+	            piesEarnedThisSession = 100;
+	        } else {
+	            piesEarnedThisSession = Math.max(0, enteredDigits.length - 1);
+	        }
 
-	        for (let i = start; i <= end; i++) {
-	            // don’t push duplicates, and don’t exceed 100
+	        totalCorrectDigits = piesEarnedThisSession;
+
+		console.log(`Total correct digits: ${totalCorrectDigits}`);
+        
+	        for (let i = 1; i <= totalCorrectDigits; i++) {
 	            if (i <= 100 && !earnedPies.includes(i)) {
 	                earnedPies.push(i);
 	            }
 	        }
+        
+	        console.log(`Updated session total: ${piesEarnedThisSession}`);
 	    }
 	    saveEarnedPies();
 	}
@@ -1781,18 +1791,19 @@
         
         // Show result overlay
         function showResult(success = true) {
-            let piesCount = earnedPies.length;
-            
-	    updateEarnedPies();
+	    updateEarnedPies(success);
+
+            let totalpiescount = earnedPies.length;
 
             overlay.style.display = "flex";
             
-	if (success && currentDigitIndex >= MAX_DIGITS) {
+	if (success && currentDigitIndex >= 100) {
                 resultTitle.textContent = "Master Baker! 🥧";
                 resultMessage.textContent = `Congratulations! You've memorised the first 100 digits of pie. Now you can open a full bakery!`;
             } else {
                 resultTitle.textContent = "Nice Try! 🥧";
-                resultMessage.textContent = `You've baked ${piesCount} pies!`;
+                resultMessage.textContent = `You've baked ${piesEarnedThisSession} pies!`;
+	        console.log(`Final session count: ${piesEarnedThisSession}`);
             }
 
 	    // Add button to view pie collection
@@ -2094,7 +2105,6 @@
 	            id: pieId,
 	            digit: PI_DIGITS.charAt(pieId), // Get actual digit from Pi
 	            name: `Mystery Pie #${pieId}`,
-	            romanNumeral: pieId, // We'd need a converter for larger numbers
 	            fact: `Placeholder fact for Pi digit ${pieId}`
 	        };
 	    }
@@ -2118,7 +2128,7 @@
 		<div class="pie-card-right">
 		    <div class="pie-position-info">
 	               <p class="digit-info"><strong>Digit:</strong> ${pieData.digit}</p>
-	               <p class="position-info"><strong>Position:</strong> ${pieData.romanNumeral}</p>
+	               <p class="position-info"><strong>Position:</strong> ${pieData.id}</p>
 		    </div>
 		    <div class="pie-fact">
 		        <strong>Did you know...</strong> ${pieData.fact}
