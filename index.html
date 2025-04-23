@@ -287,7 +287,7 @@
 	let currentLineStartIndex = 0;
 	let currentLine = 0;
 	let piesEarnedThisSession = 0;
-	let totalCorrectDigits = 0;
+	let totalDigitsEntered = 0;
 
 	// Audio context for generating sounds
 	let audioContext;
@@ -1770,14 +1770,14 @@
             if (enteredDigits.length === 100) {
 	            piesEarnedThisSession = 100;
 	        } else {
-	            piesEarnedThisSession = Math.max(0, enteredDigits.length - 1);
+	            piesEarnedThisSession = Math.max(0, currentLine * 10 + enteredDigits.length - 1);
 	        }
 
-	        totalCorrectDigits = piesEarnedThisSession;
+	        totalDigitsEntered = piesEarnedThisSession;
 
-		console.log(`Total correct digits: ${totalCorrectDigits}`);
+		console.log(`Total correct digits: ${totalDigitsEntered}`);
         
-	        for (let i = 1; i <= totalCorrectDigits; i++) {
+	        for (let i = 1; i <= totalDigitsEntered; i++) {
 	            if (i <= 100 && !earnedPies.includes(i)) {
 	                earnedPies.push(i);
 	            }
