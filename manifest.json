@@ -1,0 +1,13 @@
+{
+  "name": "100Pi",
+  "theme_color": "#1a0f2e",
+  "background_color": "#1a0f2e",
+  "short_name": "100Pi",
+  "id": "100Pi",
+  "description": "A memory game. A baking game. A warning.\nRecall 100 digits of Pi. Bake 100 totally normal pies. Evade an inevitable existential crisis.",
+  "categories": [
+    "entertainment",
+    "games",
+    "productivity"
+  ]
+}
