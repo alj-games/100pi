@@ -1698,7 +1698,7 @@
 	    currentLine++;
 
 	    if (currentLine >= 10) {
-	        showFinalScore();
+	        showResult(true);
 	        return;
 	    }
 
@@ -1767,7 +1767,7 @@
 	    console.log(`Updating earned pies. Current line: ${currentLine}, enteredDigits length: ${enteredDigits.length}`);
 	    
 	    if (currentMode === "recall") {
-            if (enteredDigits.length === 100) {
+            if (currentLine === 9 && enteredDigits.length === 10) {
 	            piesEarnedThisSession = 100;
 	        } else {
 	            piesEarnedThisSession = Math.max(0, currentLine * 10 + enteredDigits.length - 1);
@@ -1797,7 +1797,7 @@
 
             overlay.style.display = "flex";
             
-	if (success && currentDigitIndex >= 100) {
+	if (success && totalDigitsEntered >= 100) {
                 resultTitle.textContent = "Master Baker! 🥧";
                 resultMessage.textContent = `Congratulations! You've memorised the first 100 digits of pie. Now you can open a full bakery!`;
             } else {
