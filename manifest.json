@@ -11,9 +11,9 @@
     "productivity"
   ],
   "start_url": "https://alj-games.github.io/100pi/",
-  "display": "standalone",
+  "display": "fullscreen",
   "display_override": [
-    "fullscreen",
+    "standalone",
     "window-controls-overlay"
   ],
   "icons": [
