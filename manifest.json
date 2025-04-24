@@ -24,6 +24,57 @@
       "purpose": "any"
     }
   ],
+  "screenshots": [
+  {
+    "src": "https://i.imgur.com/9Zv3jJt.png",
+    "sizes": "1080x1920",
+    "type": "image/png",
+    "platform": "narrow",
+    "label": "Study Mode - Practice memorizing Pi"
+  },
+  {
+    "src": "https://i.imgur.com/yr2Tgev.png",
+    "sizes": "1080x1920",
+    "type": "image/png",
+    "platform": "narrow",
+    "label": "Results screen showing your success"
+  },
+  {
+    "src": "https://i.imgur.com/HEthO3W.png",
+    "sizes": "1080x1920",
+    "type": "image/png",
+    "platform": "narrow",
+    "label": "Cherry Pie - A sweet reward"
+  },
+  {
+    "src": "https://i.imgur.com/7uAWAnK.png",
+    "sizes": "1080x1920",
+    "type": "image/png",
+    "platform": "narrow",
+    "label": "Pizza Pie - An unconventional discovery"
+  },
+  {
+    "src": "https://i.imgur.com/25jyt1X.png",
+    "sizes": "1080x1920",
+    "type": "image/png",
+    "platform": "narrow",
+    "label": "Chewed Gum Pie - Things get strange"
+  },
+  {
+    "src": "https://i.imgur.com/Kumg65z.png",
+    "sizes": "1080x1920",
+    "type": "image/png",
+    "platform": "narrow",
+    "label": "Aspic Pie - Delve deeper into the bakery"
+  },
+  {
+    "src": "https://i.imgur.com/r13ZxSr.png",
+    "sizes": "1080x1920",
+    "type": "image/png",
+    "platform": "narrow",
+    "label": "Sleep Paralysis Pie - Delve deeper into your own fears"
+  }
+]
   "dir": "auto",
   "lang": "en",
   "orientation": "natural"
