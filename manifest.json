@@ -11,6 +11,11 @@
     "productivity"
   ],
   "start_url": "https://alj-games.github.io/100pi/",
+  
+  "launch_handler": {
+    "client_mode": ["navigate-existing", "auto"]
+  }
+  
   "display": "fullscreen",
   "display_override": [
     "standalone",
