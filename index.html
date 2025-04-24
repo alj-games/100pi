@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="manifest" href="/100pi/manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nabla&family=Nova+Square&family=Tilt+Neon&display=swap" rel="stylesheet">
@@ -1351,6 +1350,16 @@
 	        resetGame();
 	        updateDisplay();
 	    });
+
+	    window.addEventListener("popstate", function(event) {
+	        const pieCollectionOverlay = document.getElementById("pie-collection-overlay");
+	        if (pieCollectionOverlay && pieCollectionOverlay.style.display === "flex") {
+	            pieCollectionOverlay.style.display = "none";
+	            resetGame();
+	            updateDisplay();
+	        event.preventDefault();
+	        }
+	    });
     
 	    // Set up keyboard input
 	    document.addEventListener("keydown", (event) => {
@@ -1823,10 +1832,9 @@
         }
 
 	function showPieCollection() {
-	    // Hide result overlay if it's showing
 	    overlay.style.display = "none";
+	    history.pushState({ page: "pieCollection" }, "Pi Bakery");
     
-	    // Create pie collection overlay if it doesn't exist
 	    let pieCollectionOverlay = document.getElementById("pie-collection-overlay");
 	    if (!pieCollectionOverlay) {
 	        pieCollectionOverlay = document.createElement("div");
@@ -1910,7 +1918,7 @@
 			    }
     
 			    .pie-item {
-			        width: 32px;
+			        width: 32px;00
 			        height: 32px;
 			        font-size: 14px;
 			    }
@@ -2137,8 +2145,9 @@
 		    </div>
 		</div>
 	    </div>
-	`;    
+	`;
 	    pieDetailCard.style.display = "block";
+
 	}
         
         // Initialize the app
