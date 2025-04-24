@@ -14,7 +14,7 @@
   
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
-  }
+  },
   
   "display": "fullscreen",
   "display_override": [
