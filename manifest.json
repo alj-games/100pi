@@ -10,17 +10,25 @@
     "games",
     "productivity"
   ],
+  "dir": "auto",
+  "lang": "en",
+  "orientation": "natural",
+  "permissions": ["background-sync", "notifications"],
+
+
   "start_url": "https://alj-games.github.io/100pi/",
-  
+  "scope": "https://alj-games.github.io/100pi/",
+
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
   },
-  
+
   "display": "fullscreen",
   "display_override": [
     "standalone",
     "window-controls-overlay"
   ],
+
   "icons": [
     {
       "src": "https://i.imgur.com/hpKNkrW.png",
@@ -29,7 +37,8 @@
       "purpose": "any"
     }
   ],
-  "screenshots": [
+
+"screenshots": [
   {
     "src": "https://i.imgur.com/9Zv3jJt.png",
     "sizes": "1080x1920",
@@ -80,7 +89,4 @@
     "label": "Sleep Paralysis Pie - Delve deeper into your own fears"
   }
 ],
-  "dir": "auto",
-  "lang": "en",
-  "orientation": "natural"
 }
