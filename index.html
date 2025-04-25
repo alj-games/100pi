@@ -1548,9 +1548,9 @@
 
 	    console.log("Current digits:", enteredDigits, "Length:", enteredDigits.length);
     
-	    // Check if we need to roll up (every 10 digits)
+	    // Check if we need to roll up
 	    if (enteredDigits.length === 10) {
-	       	if (currentMode === "recall") {
+	       	if (currentMode === "recall" && value === expectedDigit) {
 		    updateDisplay();
 		    updateEarnedPies();
 		    celebrateLine();
@@ -1571,7 +1571,6 @@
 		// In recall mode:
 		if (currentMode === "recall") {
 		    if (value !== expectedDigit) {
-		        // In recall mode, show result when wrong digit is entered
 		        showResult(false);
 		        return;
 		    } else {
