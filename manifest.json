@@ -14,14 +14,22 @@
   "lang": "en",
   "orientation": "natural",
   "permissions": ["background-sync", "notifications"],
-
-
   "start_url": "https://alj-games.github.io/100pi/",
   "scope": "https://alj-games.github.io/100pi/",
-
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
   },
+  [
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.alj_games.twa",
+      "sha256_cert_fingerprints":
+        ["04:DE:DB:D0:42:B4:D4:6F:2B:AB:96:5D:9B:92:CD:87:D2:57:D9:E5:10:88:F7:4A:EE:9D:56:C5:97:C6:32:4A"]
+    }
+  }
+],
 
   "display": "fullscreen",
   "display_override": [
