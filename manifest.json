@@ -19,7 +19,6 @@
   "launch_handler": {
     "client_mode": ["navigate-existing", "auto"]
   },
-  [
   {
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
@@ -30,8 +29,7 @@
         "49:55:30:C9:CA:4C:85:15:3D:1E:AF:2F:FE:65:52:43:C3:C7:3C:EE:8F:62:12:3A:25:6A:D1:FB:F8:46:96:BF"
       ]
     }
-  }
-],
+  },
 
   "display": "fullscreen",
   "display_override": [
